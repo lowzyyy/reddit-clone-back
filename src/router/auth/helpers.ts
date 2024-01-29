@@ -10,6 +10,8 @@ import { fileFilter } from "../communities/helpers.js";
 import multer from "multer";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
+import fs from "fs/promises";
+import sharp from "sharp";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -74,14 +76,14 @@ export const getVotedComments = async (userId: string) => {
 };
 
 const storage = multer.diskStorage({
-  destination: path.join(__dirname, `${process.env.SAVEPATHIMG}/users/`),
+  destination: path.join(__dirname, `${process.env.SAVEPATHIMG}/users`),
   filename: async (req, file, cb) => {
     const userId = (
       await verifyUser(extractAuthToken(req.headers.authorization))
     ).userId;
 
     const ext = file.originalname.split(".")[1];
-    cb(null, userId + "." + ext);
+    cb(null, userId + "." + ext.toLowerCase());
   },
 });
 
@@ -121,6 +123,11 @@ export const uploadMiddleware = async (
           await pool.query(`UPDATE users set have_avatar=true where id=$1`, [
             user.userId,
           ]);
+          await sharp(req.file!.path)
+            .webp({ quality: 50 })
+            .withMetadata()
+            .toFile(req.file!.path.split(".")[0] + ".webp");
+          await fs.unlink(req.file.path);
           next();
         } else
           throw {

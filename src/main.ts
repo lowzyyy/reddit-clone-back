@@ -30,8 +30,8 @@ app.use(commentsRouter);
 app.use(
   "/users",
   express.static(path.resolve(`${process.env.STARTPATHIMG}/users`), {
-    extensions: ["png", "jpg", "jpeg"],
+    extensions: ["webp", "jpg"],
   })
 );
 
-app.listen(3110);
+app.listen(process.env.PORT || 3110);

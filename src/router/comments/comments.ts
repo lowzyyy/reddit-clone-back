@@ -145,9 +145,9 @@ commentsRouter.get("/getComment", async (req, res) => {
 
     const commentsData = await pool.query<TComment>(
       `with recursive post_comm as (
-        select comments.*,username from comments join users on users.id=owner_id where comments.id=$1
+        select comments.*,username,users.have_avatar from comments join users on users.id=owner_id where comments.id=$1
         union
-        select c.*,users.username from comments c join post_comm pc on c.parent_id = pc.id join users on c.owner_id=users.id
+        select c.*,users.username,users.have_avatar from comments c join post_comm pc on c.parent_id = pc.id join users on c.owner_id=users.id
       )
       select * from post_comm `,
       [commentId]

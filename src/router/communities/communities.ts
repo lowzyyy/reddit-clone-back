@@ -297,7 +297,9 @@ communitiesRouter.get("/getCommunityImage", async (req, res) => {
 
     const img = (
       await fs.readdir(`${process.env.STARTPATHIMG}/communityImages`)
-    ).filter((img) => img.includes(term as string) && img.includes(type))[0];
+    ).filter(
+      (img) => img.includes(term as string) && img.includes(type + ".webp")
+    )[0];
     if (img === undefined) return res.status(404).send(null);
 
     return res

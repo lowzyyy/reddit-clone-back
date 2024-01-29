@@ -186,7 +186,7 @@ authRouter.post("/login", multer().none(), async (req, res) => {
   }
 });
 
-authRouter.post("/setUserImage", uploadMiddleware, (req, res) => {
+authRouter.post("/setUserImage", uploadMiddleware, async (req, res) => {
   try {
     return res.status(200).json({ message: "Success upload avatar" });
     // return res.status(200).sendFile(req.file);

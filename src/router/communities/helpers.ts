@@ -8,6 +8,7 @@ import { NextFunction, Request, Response } from "express";
 import fs from "fs/promises";
 import multer from "multer";
 import path, { dirname } from "path";
+import sharp from "sharp";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -71,7 +72,7 @@ const storage = multer.diskStorage({
   ),
   filename: (req, file, cb) => {
     const ext = file.originalname.split(".")[1];
-    cb(null, req.query.term + "_" + req.query.type + "." + ext);
+    cb(null, req.query.term + "_" + req.query.type + "." + ext.toLowerCase());
   },
 });
 
@@ -107,15 +108,24 @@ export const uploadMiddleware = async (
       return res.status(200).json({ message: "Success delete" });
     }
     // run multer if everything before was ok and then call next with file attached to req
-    multerUpload(req, res, (err) => {
+    multerUpload(req, res, async (err) => {
       try {
-        if (req.file) next();
-        else
+        if (req.file) {
+          await sharp(req.file!.path)
+            .webp({ quality: 50 })
+            .withMetadata()
+            .rotate()
+            .toFile(req.file!.path.split(".")[0] + ".webp");
+          await fs.unlink(req.file.path);
+          next();
+        } else
           throw {
             message: "Error: available ext jpg/jpeg/png",
             code: 400,
           };
       } catch (error) {
+        console.log(error);
+
         processError(error, res);
       }
     });
