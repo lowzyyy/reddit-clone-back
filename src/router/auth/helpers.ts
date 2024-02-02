@@ -126,6 +126,7 @@ export const uploadMiddleware = async (
           await sharp(req.file!.path)
             .webp({ quality: 50 })
             .withMetadata()
+            .rotate()
             .toFile(req.file!.path.split(".")[0] + ".webp");
           await fs.unlink(req.file.path);
           next();

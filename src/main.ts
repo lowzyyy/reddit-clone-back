@@ -35,3 +35,5 @@ app.use(
 );
 
 app.listen(process.env.PORT || 3110);
+
+console.log("Reddit clone server started!");

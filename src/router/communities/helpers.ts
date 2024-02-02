@@ -108,14 +108,16 @@ export const uploadMiddleware = async (
       return res.status(200).json({ message: "Success delete" });
     }
     // run multer if everything before was ok and then call next with file attached to req
+
     multerUpload(req, res, async (err) => {
       try {
         if (req.file) {
-          await sharp(req.file!.path)
+          const s = await sharp(req.file!.path)
             .webp({ quality: 50 })
             .withMetadata()
             .rotate()
             .toFile(req.file!.path.split(".")[0] + ".webp");
+
           await fs.unlink(req.file.path);
           next();
         } else
